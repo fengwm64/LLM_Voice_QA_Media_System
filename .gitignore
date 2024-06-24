@@ -1,2 +1,6 @@
-bin
 resources
+.vscode
+.vscode/settings.json
+code/client/obj/
+code/server/obj/
+code/build
