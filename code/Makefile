@@ -1,39 +1,67 @@
-# 定义编译器和编译选项的变量
-ARM_CC = arm-linux-gcc
-CC = gcc
-CFLAGS = -L./ -lfont -lm
+# 声明交叉编译器
+CC = arm-linux-gcc
+# 编译选项
+CFLAGS = -I./lib/lcd -I./lib/bmp -I./lib/font -I./lib/jpg -I./lib/touch -I./lib/function
+# 链接选项
+LDFLAGS = -L./lib/jpg -ljpeg
 
-# 输出目录
-BIN_DIR = ../bin
+# 源文件目录
+SRC_DIR = ./
+# 目标文件目录
+OBJ_DIR = ../bin/obj
+# 可执行文件目录
+BIN_DIR = ../bin/main
 
-# 目标文件和源文件
-CLIENT_SRC = tcp_client.c
-SERVER_SRC = tcp_server.c
-CLIENT_BIN = $(BIN_DIR)/client
-SERVER_BIN = $(BIN_DIR)/server
+# 所有源文件
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+# 所有目标文件
+OBJS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
+# 目标可执行文件
+TARGET = $(BIN_DIR)/main
+
+# 子目录下的源文件 
+SUB_DIRS = ./lib/lcd ./lib/bmp ./lib/font ./lib/jpg ./lib/touch ./lib/function
+SUB_SRCS = $(foreach dir,$(SUB_DIRS),$(wildcard $(dir)/*.c))
+SUB_OBJS = $(patsubst %.c,$(OBJ_DIR)/%.o,$(notdir $(SUB_SRCS)))
 
 # 默认目标
-default: build
+all: $(TARGET)
 
-# 编译目标
-build: $(CLIENT_BIN) $(SERVER_BIN)
+# 生成目标可执行文件
+$(TARGET): $(OBJS) $(SUB_OBJS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $^ -o $@ $(LDFLAGS)
 
-# 为ARM平台编译客户端程序
-$(CLIENT_BIN): $(CLIENT_SRC)
-	mkdir -p $(BIN_DIR)  # 确保输出目录存在
-	$(ARM_CC) $(CLIENT_SRC) -o $(CLIENT_BIN) $(CFLAGS)
+# 编译主目录下的源文件
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# 为本地平台编译服务器程序
-$(SERVER_BIN): $(SERVER_SRC)
-	mkdir -p $(BIN_DIR)  # 确保输出目录存在
-	$(CC) $(SERVER_SRC) -o $(SERVER_BIN)
+# 编译子目录下的源文件
+$(OBJ_DIR)/%.o: ./lib/lcd/%.c
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# 清理目标
+$(OBJ_DIR)/%.o: ./lib/bmp/%.c
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: ./lib/font/%.c
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: ./lib/jpg/%.c
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: ./lib/touch/%.c
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: ./lib/function/%.c
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# 清理目标文件和可执行文件
 clean:
-	rm -rf *.o
-	rm -rf $(CLIENT_BIN)
-	rm -rf $(SERVER_BIN)
-
-# 运行目标
-run: build
-	$(SERVER_BIN)
+	rm -rf $(OBJ_DIR) $(BIN_DIR)

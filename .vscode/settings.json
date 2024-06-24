@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "touch.h": "c",
+        "bmp.h": "c",
+        "lcd.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
+}
