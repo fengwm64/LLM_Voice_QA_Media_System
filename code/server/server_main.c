@@ -1,4 +1,8 @@
-﻿#include <stdlib.h>
+﻿/*
+ * 语音听写(iFly Auto Transform)技术能够实时地将语音转换成对应的文字。
+ */
+
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -12,372 +16,535 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "./include/qisr.h"
-#include "./include/msp_cmn.h"
-#include "./include/msp_errors.h"
+#include "qisr.h"
+#include "msp_cmn.h"
+#include "msp_errors.h"
 
-#define SAMPLE_RATE_16K (16000)
-#define SAMPLE_RATE_8K (8000)
-#define MAX_GRAMMARID_LEN (32)
-#define MAX_PARAMS_LEN (1024)
+#define BUFFER_SIZE 8192
+#define FRAME_LEN 640
+#define HINTS_SIZE 100
+#define RECORD_NAME "wav/cmd.wav"
+#define AUDIO_CMD "ekho"
+#define LLM_CMD "python ../LLM/chat.py"
+#define LLM_WAKE "科学科学"
+#define LLM_TEXT_RES "res.txt"
+#define LLM_AUDIO_RES "res.wav"
 
-const char *ASR_RES_PATH = "../server/bin/fo|res/asr/common.jet"; // 离线语法识别资源路径
-const char *GRM_BUILD_PATH = "../server/bin/res/asr/GrmBuilld";	  // 构建离线语法识别网络生成数据保存路径
-const char *GRM_FILE = "../server/bin/call.bnf";				  // 构建离线识别语法网络所用的语法文件
-const char *LEX_NAME = "contact";								  // 更新离线识别语法的contact槽（语法文件为此示例中使用的call.bnf）
-int conn_fd = -1;
-typedef struct _UserData
+char *run_iat(const char *audio_file, const char *session_begin_params)
 {
-	int build_fini;						// 标识语法构建是否完成
-	int update_fini;					// 标识更新词典是否完成
-	int errcode;						// 记录语法构建或更新词典回调错误码
-	char grammar_id[MAX_GRAMMARID_LEN]; // 保存语法构建返回的语法ID
-} UserData;
-
-int build_grammar(UserData *udata);	 // 构建离线识别语法网络
-int update_lexicon(UserData *udata); // 更新离线识别语法词典
-int run_asr(UserData *udata);		 // 进行离线语法识别
-
-int build_grm_cb(int ecode, const char *info, void *udata)
-{
-	UserData *grm_data = (UserData *)udata;
-
-	if (NULL != grm_data)
-	{
-		grm_data->build_fini = 1;
-		grm_data->errcode = ecode;
-	}
-
-	if (MSP_SUCCESS == ecode && NULL != info)
-	{
-		printf("构建语法成功！ 语法ID:%s\n", info);
-		if (NULL != grm_data)
-			snprintf(grm_data->grammar_id, MAX_GRAMMARID_LEN - 1, info);
-	}
-	else
-		printf("构建语法失败！%d\n", ecode);
-
-	return 0;
-}
-
-int build_grammar(UserData *udata)
-{
-	FILE *grm_file = NULL;
-	char *grm_content = NULL;
-	unsigned int grm_cnt_len = 0;
-	char grm_build_params[MAX_PARAMS_LEN] = {NULL};
-	int ret = 0;
-
-	grm_file = fopen(GRM_FILE, "rb");
-	if (NULL == grm_file)
-	{
-		printf("打开\"%s\"文件失败！[%s]\n", GRM_FILE, strerror(errno));
-		return -1;
-	}
-
-	fseek(grm_file, 0, SEEK_END);
-	grm_cnt_len = ftell(grm_file);
-	fseek(grm_file, 0, SEEK_SET);
-
-	grm_content = (char *)malloc(grm_cnt_len + 1);
-	if (NULL == grm_content)
-	{
-		printf("内存分配失败!\n");
-		fclose(grm_file);
-		grm_file = NULL;
-		return -1;
-	}
-	fread((void *)grm_content, 1, grm_cnt_len, grm_file);
-	grm_content[grm_cnt_len] = '\0';
-	fclose(grm_file);
-	grm_file = NULL;
-
-	snprintf(grm_build_params, MAX_PARAMS_LEN - 1,
-			 "engine_type = local, \
-		asr_res_path = %s, sample_rate = %d, \
-		grm_build_path = %s, ",
-			 ASR_RES_PATH,
-			 SAMPLE_RATE_16K,
-			 GRM_BUILD_PATH);
-	ret = QISRBuildGrammar("bnf", grm_content, grm_cnt_len, grm_build_params, build_grm_cb, udata);
-
-	free(grm_content);
-	grm_content = NULL;
-
-	return ret;
-}
-
-int update_lex_cb(int ecode, const char *info, void *udata)
-{
-	UserData *lex_data = (UserData *)udata;
-
-	if (NULL != lex_data)
-	{
-		lex_data->update_fini = 1;
-		lex_data->errcode = ecode;
-	}
-
-	if (MSP_SUCCESS == ecode)
-		printf("更新词典成功！\n");
-	else
-		printf("更新词典失败！%d\n", ecode);
-
-	return 0;
-}
-
-int update_lexicon(UserData *udata)
-{
-	const char *lex_content = "丁伟\n黄辣椒";
-	unsigned int lex_cnt_len = strlen(lex_content);
-	char update_lex_params[MAX_PARAMS_LEN] = {NULL};
-
-	snprintf(update_lex_params, MAX_PARAMS_LEN - 1,
-			 "engine_type = local, text_encoding = UTF-8, \
-		asr_res_path = %s, sample_rate = %d, \
-		grm_build_path = %s, grammar_list = %s, ",
-			 ASR_RES_PATH,
-			 SAMPLE_RATE_16K,
-			 GRM_BUILD_PATH,
-			 udata->grammar_id);
-	return QISRUpdateLexicon(LEX_NAME, lex_content, lex_cnt_len, update_lex_params, update_lex_cb, udata);
-}
-
-int run_asr(UserData *udata)
-{
-	char asr_params[MAX_PARAMS_LEN] = {NULL};
-	const char *rec_rslt = NULL;
 	const char *session_id = NULL;
-	const char *asr_audiof = NULL;
+	char rec_result[BUFFER_SIZE] = {NULL};
+	char hints[HINTS_SIZE] = {NULL}; // hints为结束本次会话的原因描述，由用户自定义
+	unsigned int total_len = 0;
+	int aud_stat = MSP_AUDIO_SAMPLE_CONTINUE; // 音频状态
+	int ep_stat = MSP_EP_LOOKING_FOR_SPEECH;  // 端点检测
+	int rec_stat = MSP_REC_STATUS_SUCCESS;	  // 识别状态
+	int errcode = MSP_SUCCESS;
+
 	FILE *f_pcm = NULL;
-	char *pcm_data = NULL;
+	char *p_pcm = NULL;
 	long pcm_count = 0;
 	long pcm_size = 0;
-	int last_audio = 0;
-	int aud_stat = MSP_AUDIO_SAMPLE_CONTINUE;
-	int ep_status = MSP_EP_LOOKING_FOR_SPEECH;
-	int rec_status = MSP_REC_STATUS_INCOMPLETE;
-	int rss_status = MSP_REC_STATUS_INCOMPLETE;
-	int errcode = -1;
+	long read_size = 0;
 
-	asr_audiof = "wav/1.wav";
-	f_pcm = fopen(asr_audiof, "rb");
+	if (NULL == audio_file)
+		goto iat_exit;
+
+	f_pcm = fopen(audio_file, "rb");
 	if (NULL == f_pcm)
 	{
-		printf("打开\"%s\"失败！[%s]\n", f_pcm, strerror(errno));
-		goto run_error;
+		printf("\nopen [%s] failed! \n", audio_file);
+		goto iat_exit;
 	}
-	fseek(f_pcm, 0, SEEK_END);
-	pcm_size = ftell(f_pcm);
-	fseek(f_pcm, 0, SEEK_SET);
-	pcm_data = (char *)malloc(pcm_size);
-	if (NULL == pcm_data)
-		goto run_error;
-	fread((void *)pcm_data, pcm_size, 1, f_pcm);
-	fclose(f_pcm);
-	f_pcm = NULL;
 
-	// 离线语法识别参数设置
-	snprintf(asr_params, MAX_PARAMS_LEN - 1,
-			 "engine_type = local, \
-		asr_res_path = %s, sample_rate = %d, \
-		grm_build_path = %s, local_grammar = %s, \
-		result_type = xml, result_encoding = UTF-8, ",
-			 ASR_RES_PATH,
-			 SAMPLE_RATE_16K,
-			 GRM_BUILD_PATH,
-			 udata->grammar_id);
-	session_id = QISRSessionBegin(NULL, asr_params, &errcode);
-	if (NULL == session_id)
-		goto run_error;
-	printf("开始识别...\n");
+	fseek(f_pcm, 0, SEEK_END);
+	pcm_size = ftell(f_pcm); // 获取音频文件大小
+	fseek(f_pcm, 0, SEEK_SET);
+
+	p_pcm = (char *)malloc(pcm_size);
+	if (NULL == p_pcm)
+	{
+		printf("\nout of memory! \n");
+		goto iat_exit;
+	}
+
+	read_size = fread((void *)p_pcm, 1, pcm_size, f_pcm); // 读取音频文件内容
+	if (read_size != pcm_size)
+	{
+		printf("\nread [%s] error!\n", audio_file);
+		goto iat_exit;
+	}
+
+	printf("\n开始语音听写 ...\n");
+	session_id = QISRSessionBegin(NULL, session_begin_params, &errcode); // 听写不需要语法，第一个参数为NULL
+	if (MSP_SUCCESS != errcode)
+	{
+		printf("\nQISRSessionBegin failed! error code:%d\n", errcode);
+		goto iat_exit;
+	}
 
 	while (1)
 	{
-		unsigned int len = 6400;
+		unsigned int len = 10 * FRAME_LEN; // 每次写入200ms音频(16k，16bit)：1帧音频20ms，10帧=200ms。16k采样率的16位音频，一帧的大小为640Byte
+		int ret = 0;
 
-		if (pcm_size < 12800)
-		{
+		if (pcm_size < 2 * len)
 			len = pcm_size;
-			last_audio = 1;
-		}
-
-		aud_stat = MSP_AUDIO_SAMPLE_CONTINUE;
-
-		if (0 == pcm_count)
-			aud_stat = MSP_AUDIO_SAMPLE_FIRST;
-
 		if (len <= 0)
 			break;
 
+		aud_stat = MSP_AUDIO_SAMPLE_CONTINUE;
+		if (0 == pcm_count)
+			aud_stat = MSP_AUDIO_SAMPLE_FIRST;
+
 		printf(">");
-		fflush(stdout);
-		errcode = QISRAudioWrite(session_id, (const void *)&pcm_data[pcm_count], len, aud_stat, &ep_status, &rec_status);
-		if (MSP_SUCCESS != errcode)
-			goto run_error;
+		ret = QISRAudioWrite(session_id, (const void *)&p_pcm[pcm_count], len, aud_stat, &ep_stat, &rec_stat);
+		if (MSP_SUCCESS != ret)
+		{
+			printf("\nQISRAudioWrite failed! error code:%d\n", ret);
+			goto iat_exit;
+		}
 
 		pcm_count += (long)len;
 		pcm_size -= (long)len;
 
-		// 检测到音频结束
-		if (MSP_EP_AFTER_SPEECH == ep_status)
+		if (MSP_REC_STATUS_SUCCESS == rec_stat) // 已经有部分听写结果
+		{
+			const char *rslt = QISRGetResult(session_id, &rec_stat, 0, &errcode);
+			if (MSP_SUCCESS != errcode)
+			{
+				printf("\nQISRGetResult failed! error code: %d\n", errcode);
+				goto iat_exit;
+			}
+			if (NULL != rslt)
+			{
+				unsigned int rslt_len = strlen(rslt);
+				total_len += rslt_len;
+				if (total_len >= BUFFER_SIZE)
+				{
+					printf("\nno enough buffer for rec_result !\n");
+					goto iat_exit;
+				}
+				strncat(rec_result, rslt, rslt_len);
+			}
+		}
+
+		if (MSP_EP_AFTER_SPEECH == ep_stat)
 			break;
-
-		usleep(150 * 1000); // 模拟人说话时间间隙
+		usleep(200 * 1000); // 模拟人说话时间间隙。200ms对应10帧的音频
 	}
-	// 主动点击音频结束
-	QISRAudioWrite(session_id, (const void *)NULL, 0, MSP_AUDIO_SAMPLE_LAST, &ep_status, &rec_status);
-
-	free(pcm_data);
-	pcm_data = NULL;
-
-	// 获取识别结果
-	while (MSP_REC_STATUS_COMPLETE != rss_status && MSP_SUCCESS == errcode)
+	errcode = QISRAudioWrite(session_id, NULL, 0, MSP_AUDIO_SAMPLE_LAST, &ep_stat, &rec_stat);
+	if (MSP_SUCCESS != errcode)
 	{
-		rec_rslt = QISRGetResult(session_id, &rss_status, 0, &errcode);
-		usleep(150 * 1000);
+		printf("\nQISRAudioWrite failed! error code:%d \n", errcode);
+		goto iat_exit;
 	}
-	printf("\n识别结束：\n");
+
+	while (MSP_REC_STATUS_COMPLETE != rec_stat)
+	{
+		const char *rslt = QISRGetResult(session_id, &rec_stat, 0, &errcode);
+		if (MSP_SUCCESS != errcode)
+		{
+			printf("\nQISRGetResult failed, error code: %d\n", errcode);
+			goto iat_exit;
+		}
+		if (NULL != rslt)
+		{
+			unsigned int rslt_len = strlen(rslt);
+			total_len += rslt_len;
+			if (total_len >= BUFFER_SIZE)
+			{
+				printf("\nno enough buffer for rec_result !\n");
+				goto iat_exit;
+			}
+			strncat(rec_result, rslt, rslt_len);
+		}
+		usleep(150 * 1000); // 防止频繁占用CPU
+	}
+	printf("\n语音听写结束\n");
 	printf("=============================================================\n");
-	if (NULL != rec_rslt)
-	{
-		printf("%s\n", rec_rslt);
-		if (strstr(rec_rslt, "相册") != NULL)
-		{
-			send(conn_fd, "相册", sizeof("相册"), 0);
-		}
-		if (strstr(rec_rslt, "音乐") != NULL)
-		{
-			send(conn_fd, "音乐", sizeof("音乐"), 0);
-		}
-		if (strstr(rec_rslt, "视频") != NULL)
-		{
-			send(conn_fd, "视频", sizeof("视频"), 0);
-		}
-	}
-	else
-	{
-		printf("没有识别结果！\n");
-		send(conn_fd, "没有识别结果", sizeof("没有识别结果"), 0);
-	}
+	printf("%s\n", rec_result);
 	printf("=============================================================\n");
 
-	goto run_exit;
+	char *result = strdup(rec_result); // 动态分配内存并复制结果字符串
 
-run_error:
-	if (NULL != pcm_data)
-	{
-		free(pcm_data);
-		pcm_data = NULL;
-	}
+iat_exit:
 	if (NULL != f_pcm)
 	{
 		fclose(f_pcm);
 		f_pcm = NULL;
 	}
-run_exit:
-	QISRSessionEnd(session_id, NULL);
-	return errcode;
+	if (NULL != p_pcm)
+	{
+		free(p_pcm);
+		p_pcm = NULL;
+	}
+
+	QISRSessionEnd(session_id, hints);
+
+	return result; // 返回结果字符串
+}
+
+int socket_Init()
+{
+	int sock_fd;
+
+	// 创建套接字
+	sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sock_fd < 0)
+	{
+		perror("socket() failed");
+		return -1;
+	}
+
+	// 设置端口重用
+	int on = 1;
+	if (setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
+	{
+		perror("setsockopt() failed");
+		close(sock_fd);
+		return -1;
+	}
+
+	// 绑定地址(IP+PORT)
+	struct sockaddr_in srvaddr;
+	srvaddr.sin_family = AF_INET;
+	srvaddr.sin_port = htons(7777);
+	srvaddr.sin_addr.s_addr = inet_addr("192.168.100.250");
+
+	if (bind(sock_fd, (struct sockaddr *)&srvaddr, sizeof(srvaddr)) < 0)
+	{
+		perror("bind() failed");
+		close(sock_fd);
+		return -1;
+	}
+
+	// 设置监听套接字
+	if (listen(sock_fd, 4) < 0)
+	{
+		perror("listen() failed");
+		close(sock_fd);
+		return -1;
+	}
+
+	return sock_fd;
+}
+
+int receive_File(int conn_fd, const char *filename)
+{
+	int fd = open(filename, O_RDWR | O_CREAT, 0777);
+	if (fd < 0)
+	{
+		perror("open() failed");
+		return -1;
+	}
+
+	// 接收文件总字节数
+	int file_size;
+	if (recv(conn_fd, &file_size, sizeof(file_size), 0) < 0)
+	{
+		perror("recv() failed");
+		close(fd);
+		return -1;
+	}
+	printf("File size = %d bytes\n", file_size);
+
+	char buffer[BUFFER_SIZE];
+	int recv_size, total_size = 0;
+
+	// 接收文件内容
+	while (total_size < file_size)
+	{
+		recv_size = recv(conn_fd, buffer, sizeof(buffer), 0);
+		if (recv_size < 0)
+		{
+			perror("recv() failed");
+			close(fd);
+			return -1;
+		}
+		else if (recv_size == 0)
+		{
+			printf("Client disconnected\n");
+			close(fd);
+			return -1;
+		}
+
+		// 写入接收到的数据到文件
+		if (write(fd, buffer, recv_size) < 0)
+		{
+			perror("write() failed");
+			close(fd);
+			return -1;
+		}
+
+		total_size += recv_size;
+	}
+
+	printf("File received successfully\n");
+
+	close(fd);
+	return 0;
+}
+
+// 发送文件函数定义
+int send_File(int conn_fd, const char *filename)
+{
+	// 打开要发送的文件
+	int send_fd = open(filename, O_RDONLY);
+	if (send_fd < 0)
+	{
+		perror("open() failed");
+		return -1;
+	}
+
+	// 获取文件大小
+	int file_size = lseek(send_fd, 0, SEEK_END);
+	lseek(send_fd, 0, SEEK_SET);
+
+	// 发送文件大小
+	if (send(conn_fd, &file_size, sizeof(file_size), 0) < 0)
+	{
+		perror("send() failed");
+		close(send_fd);
+		return -1;
+	}
+	printf("Sending file size: %d bytes\n", file_size);
+
+	// 发送文件内容
+	char send_buffer[BUFFER_SIZE];
+	int send_size, total_sent = 0;
+	while ((send_size = read(send_fd, send_buffer, sizeof(send_buffer))) > 0)
+	{
+		int sent = send(conn_fd, send_buffer, send_size, 0);
+		if (sent < 0)
+		{
+			perror("send() failed");
+			close(send_fd);
+			return -1;
+		}
+		total_sent += sent;
+	}
+
+	// 关闭文件
+	close(send_fd);
+	printf("File sent successfully\n");
+
+	return 0;
+}
+
+int send_Msg(int conn_fd, const char *msg)
+{
+	if (send(conn_fd, msg, strlen(msg), 0) == -1)
+	{
+		perror("send() failed");
+	}
+	printf("\n");
+	printf("文字已经发送到开发板\n");
+}
+
+char *extract_Question(char *rec_result)
+{
+	// 寻找第一次出现唤醒词的位置
+	char *ptr = strstr(rec_result, LLM_WAKE);
+
+	// 获取第一次出现唤醒词后的所有字符
+	ptr += strlen(LLM_WAKE);
+
+	// 如果唤醒词后面有逗号，也将其跳过
+	if (*ptr == ',')
+		ptr++;
+
+	// 跳过可能存在的空格
+	while (*ptr == ' ')
+		ptr++;
+
+	// 复制剩余的字符串
+	return strdup(ptr);
+}
+
+char *extract_Answer(char *buffer)
+{
+	char res[BUFFER_SIZE];
+	char *start, *end;
+	// 找到content=的起始位置
+	start = strstr(buffer, "content='");
+	if (start)
+	{
+		start += 9; // 跳过"content='"这个字符串
+		// 找到结束的单引号
+		end = strstr(start, "'");
+		if (end)
+		{
+			// 计算内容的长度
+			size_t len = end - start;
+			// 复制内容到res
+			strncpy(res, start, len);
+			res[len] = '\0'; // 添加字符串结束符
+		}
+	}
+
+	return strdup(res);
+}
+
+void text_To_File(char *res)
+{
+	FILE *file = fopen(LLM_TEXT_RES, "w");
+	if (file == NULL)
+	{
+		fprintf(stderr, "Error opening file for writing.\n");
+		return 1;
+	}
+	fprintf(file, "%s\n", res);
+	fclose(file);
+}
+
+void text_To_Audio()
+{
+	char command[256];
+	sprintf(command, "%s %s %s %s %s %s", AUDIO_CMD, "-f", LLM_TEXT_RES, "-o", LLM_AUDIO_RES, "-s -10");
+	printf("Command: %s\n", command);
+	system(command);
+	sleep(1);
+	printf("done command\n");
+}
+
+FILE *load_LLM(char *question)
+{
+	// 拼接指令
+	char cmd[4096];
+	snprintf(cmd, sizeof(cmd), "%s %s", LLM_CMD, question);
+
+	// 加载模型
+	FILE *fp = popen(cmd, "r");
+	if (fp == NULL)
+	{
+		perror("无法加载模型\n");
+		return NULL;
+	}
+
+	return fp;
+}
+
+char *get_LLM_Output(FILE *fp)
+{
+	char buffer[BUFFER_SIZE];
+	while (1)
+	{
+		if (fgets(buffer, sizeof(buffer), fp) == NULL)
+		{
+			printf("加载完毕\n");
+			break;
+		}
+		printf("%s", buffer);
+	}
+
+	return strdup(buffer);
 }
 
 int main(int argc, char *argv[])
 {
-	const char *login_config = "appid = e2ba452f"; // 登录参数
-	UserData asr_data;
-	int ret = 0;
-	char c;
+	int ret = MSP_SUCCESS;
+	const char *login_params = "appid = e2ba452f, work_dir = ."; // 登录参数，appid与msc库绑定,请勿随意改动
 
-	ret = MSPLogin(NULL, NULL, login_config); // 第一个参数为用户名，第二个参数为密码，传NULL即可，第三个参数是登录参数
+	/*
+	 * sub:				请求业务类型
+	 * domain:			领域
+	 * language:			语言
+	 * accent:			方言
+	 * sample_rate:		音频采样率
+	 * result_type:		识别结果格式
+	 * result_encoding:	结果编码格式
+	 *
+	 */
+	const char *session_begin_params = "sub = iat, domain = iat, language = zh_cn, accent = mandarin, sample_rate = 16000, result_type = plain, result_encoding = utf8";
+
+	/* 用户登录 */
+	ret = MSPLogin(NULL, NULL, login_params); // 第一个参数是用户名，第二个参数是密码，均传NULL即可，第三个参数是登录参数
 	if (MSP_SUCCESS != ret)
 	{
-		printf("登录失败：%d\n", ret);
-		goto exit;
+		printf("MSPLogin failed , Error code %d.\n", ret);
+		goto exit; // 登录失败，退出登录
 	}
 
-	memset(&asr_data, 0, sizeof(UserData));
-	printf("构建离线识别语法网络...\n");
-	ret = build_grammar(&asr_data); // 第一次使用某语法进行识别，需要先构建语法网络，获取语法ID，之后使用此语法进行识别，无需再次构建
-	if (MSP_SUCCESS != ret)
-	{
-		printf("构建语法调用失败！\n");
-		goto exit;
-	}
-	while (1 != asr_data.build_fini)
-		usleep(300 * 1000);
-	if (MSP_SUCCESS != asr_data.errcode)
-		goto exit;
-
-	// 创建套接字
-	int sock_fd = socket(PF_INET, SOCK_STREAM, 0);
-	// 设置端口重用
-	int on = 1;
-	setsockopt(sock_fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
-	// 绑定地址(IP+PORT)
-	struct sockaddr_in srvaddr;
-	srvaddr.sin_family = PF_INET;
-	// 端口
-	srvaddr.sin_port = htons(7777);
-	// IP地址
-	srvaddr.sin_addr.s_addr = inet_addr("192.168.100.250");
-	bind(sock_fd, (struct sockaddr *)&srvaddr, sizeof(srvaddr));
-
-	// 设置监听套接字
-	listen(sock_fd, 4);
+	int sock_fd = socket_Init();
+	int conn_fd = -1;
 
 	while (1)
 	{
-		// 等待客户端连接
+		// ============== 等待客户端连接 ==============
 		printf("等待连接\n");
+		conn_fd = -1;
 		conn_fd = accept(sock_fd, NULL, NULL);
 		printf("连接成功\n");
 
-		int fd = open("wav/1.wav", O_RDWR | O_CREAT, 0777);
-		if (fd < 0)
-		{
-			perror("open() failed");
-			return -1;
-		}
+		receive_File(conn_fd, RECORD_NAME);
 
-		// 先接收文件总字节数
-		int file_size;
-		recv(conn_fd, &file_size, 4, 0);
-		printf("file_size = %d\n", file_size);
-		char msg[1024];
-		int recv_size, total_size = 0;
-		while (1)
-		{
-			bzero(msg, 1024);
-			recv_size = recv(conn_fd, msg, 1024, 0);
-			total_size += recv_size;
-			write(fd, msg, recv_size);
+		// ============== 进行语音转文字 ==============
+		char *rec_result = run_iat(RECORD_NAME, session_begin_params);
 
-			printf("recv: %d/%d/%d\n", recv_size, total_size, file_size);
-			if (total_size == file_size) // 接收完毕
+		// ============== 分析语音内容 ==============
+		if (rec_result != NULL)
+		{
+			// --------- 调用大模型 ---------
+			if (strstr(rec_result, LLM_WAKE) != NULL)
 			{
-				printf("接收完毕\n");
-				break;
-			}
-			if (recv_size == 0)
-			{
-				printf("client down\n");
-				break;
-			}
-		}
-		printf("离线识别语法网络构建完成，开始识别...\n");
-		ret = run_asr(&asr_data);
-		if (MSP_SUCCESS != ret)
-		{
-			printf("离线语法识别出错: %d \n", ret);
-			goto exit;
+				printf("调用智谱大模型\n");
+				// ----- 提取问题 -----
+				char *question = extract_Question(rec_result);
 
-			// 关闭套接字
-			close(conn_fd);
-			close(sock_fd);
+				if (question == NULL)
+					goto exit;
+
+				printf("问题是：%s\n", question);
+
+				// --------- 加载chatglm模型 ---------
+				FILE *fp = load_LLM(question);
+
+				// --------- 读取模型的输出内容 ---------
+				char *buffer = get_LLM_Output(fp);
+
+				// --------- 解析内容 ---------
+				char *res = extract_Answer(buffer);
+				printf("LLM回复解析结果为：%s\n", res);
+
+				// --------- 将res写入res.txt文件 ---------
+				text_To_File(res);
+
+				// --------- 回答文字转语音 ---------
+				text_To_Audio();
+
+				// --------- 发送文字到开发板 ---------
+				send_Msg(conn_fd, res);
+
+				// ---------发送语音到开发板 ---------
+				send_File(conn_fd, LLM_AUDIO_RES);
+
+				free(question);
+				free(res);
+				free(buffer);
+				pclose(fp);
+			}
+
+			// 指令，发送识别结果回客户端
+			else
+			{
+				send_Msg(conn_fd, rec_result);
+			}
 		}
+		free(rec_result);
+		// 关闭套接字
+		close(conn_fd);
+		sleep(2);
 	}
 
 exit:
-	MSPLogout();
-	printf("请按任意键退出...\n");
+	printf("按任意键退出 ...\n");
 	getchar();
+	MSPLogout(); // 退出登录
+
+	// 关闭套接字
+	close(conn_fd);
+	close(sock_fd);
+
 	return 0;
 }

@@ -1,104 +1,141 @@
 ============================================================
-Time  2024/06/24 17:48:11 350 
+Time  2024/06/26 09:34:57 124 
 ============================================================
-[2024/06/24 17:48:11 351] lgi        684  SYS_MSG_LOAD  
-[2024/06/24 17:48:11 366] lgi        706  SYS_MSG_REGCB  msp_status_cb  func(94013700) 
-[2024/06/24 17:48:11 375] lgi        298  LGI_MSG_INIT  
-[2024/06/24 17:48:11 378] lgi        305  lgi  lgi_  268436457  1573451739  
-[2024/06/24 17:48:11 382] lgi        403  token:  nil  
-[2024/06/24 17:48:11 384] lgi        476  msc cver : 5.0.44.1288  
-[2024/06/24 17:48:11 388] lgi        519  ns_enable=  1  
-[2024/06/24 17:48:11 391] lgi        531  prot_ver=1  
-[2024/06/24 17:48:11 393] lgi        542  prot_type=tcp  
-[2024/06/24 17:48:11 403] lgi        693  SYS_MSG_UNLOAD  go bg!  
-============================================================
-Time  2024/06/24 17:50:54 864 
-============================================================
-[2024/06/24 17:50:54 865] lgi        684  SYS_MSG_LOAD  
-[2024/06/24 17:50:54 879] lgi        706  SYS_MSG_REGCB  msp_status_cb  func(a8013700) 
-[2024/06/24 17:50:54 892] lgi        298  LGI_MSG_INIT  
-[2024/06/24 17:50:54 895] lgi        305  lgi  lgi_  268436457  1573451739  
-[2024/06/24 17:50:54 900] lgi        403  token:  nil  
-[2024/06/24 17:50:54 902] lgi        476  msc cver : 5.0.44.1288  
-[2024/06/24 17:50:54 906] lgi        519  ns_enable=  1  
-[2024/06/24 17:50:54 909] lgi        531  prot_ver=1  
-[2024/06/24 17:50:54 911] lgi        542  prot_type=tcp  
-[2024/06/24 17:50:54 920] lgi        693  SYS_MSG_UNLOAD  go bg!  
-============================================================
-Time  2024/06/24 17:52:17 022 
-============================================================
-[2024/06/24 17:52:17 022] lgi        684  SYS_MSG_LOAD  
-[2024/06/24 17:52:17 034] lgi        706  SYS_MSG_REGCB  msp_status_cb  func(30013700) 
-[2024/06/24 17:52:17 044] lgi        298  LGI_MSG_INIT  
-[2024/06/24 17:52:17 046] lgi        305  lgi  lgi_  268436457  1573451739  
-[2024/06/24 17:52:17 050] lgi        403  token:  nil  
-[2024/06/24 17:52:17 052] lgi        476  msc cver : 5.0.44.1288  
-[2024/06/24 17:52:17 055] lgi        519  ns_enable=  1  
-[2024/06/24 17:52:17 057] lgi        531  prot_ver=1  
-[2024/06/24 17:52:17 059] lgi        542  prot_type=tcp  
-[2024/06/24 17:52:17 067] lgi        693  SYS_MSG_UNLOAD  go bg!  
-============================================================
-Time  2024/06/24 18:10:24 813 
-============================================================
-[2024/06/24 18:10:24 824] lgi        684  SYS_MSG_LOAD  
-[2024/06/24 18:10:24 839] lgi        706  SYS_MSG_REGCB  msp_status_cb  func(f0013700) 
-[2024/06/24 18:10:24 850] lgi        298  LGI_MSG_INIT  
-[2024/06/24 18:10:24 852] lgi        305  lgi  lgi_  268436457  1573451739  
-[2024/06/24 18:10:24 855] lgi        403  token:  nil  
-[2024/06/24 18:10:24 857] lgi        476  msc cver : 5.0.44.1288  
-[2024/06/24 18:10:24 860] lgi        519  ns_enable=  1  
-[2024/06/24 18:10:24 862] lgi        531  prot_ver=1  
-[2024/06/24 18:10:24 865] lgi        542  prot_type=tcp  
-[2024/06/24 18:10:24 875] lgi        693  SYS_MSG_UNLOAD  go bg!  
-============================================================
-Time  2024/06/24 18:14:24 312 
-============================================================
-[2024/06/24 18:14:24 313] lgi        684  SYS_MSG_LOAD  
-[2024/06/24 18:14:24 339] lgi        706  SYS_MSG_REGCB  msp_status_cb  func(e4013700) 
-[2024/06/24 18:14:24 350] lgi        298  LGI_MSG_INIT  
-[2024/06/24 18:14:24 353] lgi        305  lgi  lgi_  268436457  1573451739  
-[2024/06/24 18:14:24 359] lgi        403  token:  nil  
-[2024/06/24 18:14:24 363] lgi        476  msc cver : 5.0.44.1288  
-[2024/06/24 18:14:24 369] lgi        519  ns_enable=  1  
-[2024/06/24 18:14:24 372] lgi        531  prot_ver=1  
-[2024/06/24 18:14:24 374] lgi        542  prot_type=tcp  
-[2024/06/24 18:14:24 388] lgi        693  SYS_MSG_UNLOAD  go bg!  
-============================================================
-Time  2024/06/24 18:25:06 143 
-============================================================
-[2024/06/24 18:25:06 150] lgi        684  SYS_MSG_LOAD  
-[2024/06/24 18:25:06 158] lgi        706  SYS_MSG_REGCB  msp_status_cb  func(8013700) 
-[2024/06/24 18:25:06 165] lgi        298  LGI_MSG_INIT  
-[2024/06/24 18:25:06 166] lgi        305  lgi  lgi_  268436457  1573451739  
-[2024/06/24 18:25:06 169] lgi        403  token:  nil  
-[2024/06/24 18:25:06 171] lgi        476  msc cver : 5.0.44.1288  
-[2024/06/24 18:25:06 173] lgi        519  ns_enable=  1  
-[2024/06/24 18:25:06 174] lgi        531  prot_ver=1  
-[2024/06/24 18:25:06 176] lgi        542  prot_type=tcp  
-[2024/06/24 18:25:06 182] lgi        693  SYS_MSG_UNLOAD  go bg!  
-============================================================
-Time  2024/06/24 18:27:15 479 
-============================================================
-[2024/06/24 18:27:15 480] lgi        684  SYS_MSG_LOAD  
-[2024/06/24 18:27:15 495] lgi        706  SYS_MSG_REGCB  msp_status_cb  func(9c013910) 
-[2024/06/24 18:27:15 507] lgi        298  LGI_MSG_INIT  
-[2024/06/24 18:27:15 510] lgi        305  lgi  lgi_  268436457  1573451739  
-[2024/06/24 18:27:15 515] lgi        403  token:  nil  
-[2024/06/24 18:27:15 518] lgi        476  msc cver : 5.0.44.1288  
-[2024/06/24 18:27:15 522] lgi        519  ns_enable=  1  
-[2024/06/24 18:27:15 525] lgi        531  prot_ver=1  
-[2024/06/24 18:27:15 529] lgi        542  prot_type=tcp  
-[2024/06/24 18:27:15 541] lgi        693  SYS_MSG_UNLOAD  go bg!  
-============================================================
-Time  2024/06/24 18:50:26 705 
-============================================================
-[2024/06/24 18:50:26 706] lgi        684  SYS_MSG_LOAD  
-[2024/06/24 18:50:26 718] lgi        706  SYS_MSG_REGCB  msp_status_cb  func(680138d0) 
-[2024/06/24 18:50:26 730] lgi        298  LGI_MSG_INIT  
-[2024/06/24 18:50:26 733] lgi        305  lgi  lgi_  268436457  1573451739  
-[2024/06/24 18:50:26 737] lgi        403  token:  nil  
-[2024/06/24 18:50:26 740] lgi        476  msc cver : 5.0.44.1288  
-[2024/06/24 18:50:26 743] lgi        519  ns_enable=  1  
-[2024/06/24 18:50:26 746] lgi        531  prot_ver=1  
-[2024/06/24 18:50:26 748] lgi        542  prot_type=tcp  
-[2024/06/24 18:50:26 758] lgi        693  SYS_MSG_UNLOAD  go bg!  
+[2024/06/26 09:34:57 125] lgi        684  SYS_MSG_LOAD  
+[2024/06/26 09:34:57 136] lgi        706  SYS_MSG_REGCB  msp_status_cb  func(6c0131c0) 
+[2024/06/26 09:34:57 145] lgi        298  LGI_MSG_INIT  
+[2024/06/26 09:34:57 147] lgi        305  lgi  lgi_  268436457  1573471853  
+[2024/06/26 09:34:57 150] lgi        347  work_dir  .  
+[2024/06/26 09:34:57 152] lgi        403  token:  nil  
+[2024/06/26 09:34:57 154] lgi        476  msc cver : 5.0.44.1288  
+[2024/06/26 09:34:57 158] lgi        519  ns_enable=  1  
+[2024/06/26 09:34:57 160] lgi        531  prot_ver=1  
+[2024/06/26 09:34:57 162] lgi        542  prot_type=tcp  
+[2024/06/26 09:34:57 169] lgi        693  SYS_MSG_UNLOAD  go bg!  
+[2024/06/26 09:36:52 926] lgi        598  LGI_MSG_START, caller =  cloud_cisr1PdHHBHsx8a7+6iXaawz7HHL5ahC3W  
+[2024/06/26 09:36:52 929] lgi        604  lgistat =   0  
+[2024/06/26 09:36:52 931] lgi        630  lgi_auth_id =  nil  
+[2024/06/26 09:36:52 933] transport  645  paramkvsport is   0  
+[2024/06/26 09:36:52 935] transport  657  ns_enable=  1  
+[2024/06/26 09:36:52 937] transport  659  2017-08--24 is_ns_need_close =   nil  
+[2024/06/26 09:36:52 943] transport  665  net.nettype=  unknown  
+[2024/06/26 09:36:52 945] transport  675  url.full=  nil  
+[2024/06/26 09:36:52 947] transport  680  server_url_host=, server_url_port=, server_url_path=  open.xf-yun.com  nil  /msp.do  
+[2024/06/26 09:36:52 953] transport  907  net type:  unknown  
+[2024/06/26 09:36:52 955] transport  908  net operator:  def  
+[2024/06/26 09:36:52 958] transport  909  use proxy:  false  
+[2024/06/26 09:36:52 960] lgi        277  [session] send lgi request  
+[2024/06/26 09:36:52 962] transport  1105 session.domain=  open.xf-yun.com  
+[2024/06/26 09:36:52 964] transport  1106 url.host=  open.xf-yun.com  
+[2024/06/26 09:36:52 967] transport  1083 NAMESERVER START  
+[2024/06/26 09:36:52 969] transport  1086 name =   ath  
+[2024/06/26 09:36:52 971] ns         634  ntt=  unknown  
+[2024/06/26 09:36:52 973] transport  1089 trans,ns_inprog =  0  
+[2024/06/26 09:36:52 976] ns         582  name server start  
+[2024/06/26 09:36:52 978] ns         588  ns_sub =   ath  
+[2024/06/26 09:36:52 980] ns         596  ns_host =   open.xf-yun.com  
+[2024/06/26 09:36:52 982] ns         475  ns_host=  open.xf-yun.com  
+[2024/06/26 09:36:52 985] ns         555  net_type =  standard  
+[2024/06/26 09:36:52 987] ns         556  cmwapascmnet =  
+[2024/06/26 09:36:52 990] ns         557  uniwapasuninet =  
+[2024/06/26 09:36:52 992] ns         558  ctwapasctnet =  
+[2024/06/26 09:36:52 994] ns         576  host=  hdns.xf-yun.com  
+[2024/06/26 09:36:52 997] network    263  gethostbyname  hdns.xf-yun.com  ns1  
+[2024/06/26 09:36:53 003] lgi        244  lver:  nil  
+[2024/06/26 09:36:53 005] lgi        249  cfg_ver:  nil  
+[2024/06/26 09:36:53 012] transport  1860 transport_obj.send | in  
+[2024/06/26 09:36:53 014] transport  1866 self.msg_flag_q  table(6c06cd90) 
+[2024/06/26 09:36:53 018] transport  1867 self.msg_q  table(6c04adb0) 
+[2024/06/26 09:36:53 020] transport  1799 transport_obj.try2send | in  
+[2024/06/26 09:36:53 023] transport  1800 self.soc  nil  
+[2024/06/26 09:36:53 027] transport  1801 self.connected  false  
+[2024/06/26 09:36:53 032] transport  1802 self.latesterr  0  
+[2024/06/26 09:36:53 037] transport  1873 transport_obj.send | out  
+[2024/06/26 09:36:53 043] network    245  dns resp  0  ns1  
+[2024/06/26 09:36:53 051] ns         422  ns dns ok  101.200.180.128  
+[2024/06/26 09:36:53 054] ns         202  iplist not avail  
+[2024/06/26 09:36:53 076] ns         429  is_voicecloud_ip=  0  
+[2024/06/26 09:36:53 087] ns         436  ip_is_expected=  true  
+[2024/06/26 09:36:53 099] ns         444  ip_is_expected=  true  
+[2024/06/26 09:36:53 108] network    445  gethttpresp2  101.200.180.128  80  ns2  
+[2024/06/26 09:36:53 112] network    465  prot_type  tcp  
+[2024/06/26 09:36:53 153] transport  194  [dns] [1] response 121.37.220.137  
+[2024/06/26 09:36:53 170] transport  202  121  37  220  137  
+[2024/06/26 09:36:53 172] transport  204  ipv =  v4  
+[2024/06/26 09:36:53 182] transport  208  dns ip is v4  
+[2024/06/26 09:36:53 185] transport  130  iplist not avail  
+[2024/06/26 09:36:53 196] transport  247  no iplist now  
+[2024/06/26 09:36:53 203] network    95   iptoenv ,  ipcache  open.xf-yun.com  def  121.37.220.137  
+[2024/06/26 09:36:53 250] transport  291  dns cb start conn  
+[2024/06/26 09:36:53 253] transport  1304 [soc] connect   121.37.220.137  1028  
+[2024/06/26 09:36:53 260] transport  1316 mspsoc.open,prot_type=  tcp  
+[2024/06/26 09:36:53 288] network    350  connected  ns2  
+[2024/06/26 09:36:53 355] transport  473  [soc] [1] connected  
+[2024/06/26 09:36:53 362] transport  1799 transport_obj.try2send | in  
+[2024/06/26 09:36:53 364] transport  1800 self.soc  udata(6c0323a8) 
+[2024/06/26 09:36:53 387] transport  1801 self.connected  true  
+[2024/06/26 09:36:53 418] transport  1802 self.latesterr  0  
+[2024/06/26 09:36:53 425] transport  1819 transport:try2send,#msg_q=  1  
+[2024/06/26 09:36:53 435] transport  1359 build http request.  
+[2024/06/26 09:36:53 438] transport  1476 POST /msp.do HTTP/1.1
+X-Sub: auth
+X-Par: ver=MSSP+0%2E9&sub=auth&cmd=lgi&cver=5%2E0%2E44%2E1288&key=08^CS5Q7kpCos=
+Host: open.xf-yun.com
+CT: multipart/mixed;boundary=--
+CL: 331
+
+----
+Content-Length:56
+Content-Type:text/appinfo
+Content-Encoding:gzip,encrypt/0.2
+
+t—Ë±˜þ³ÈÑ((V-TÔÑ-QRQT*ÐQV(PV.VÐ-/+SQ-..PVge­oë  
+[2024/06/26 09:36:53 504] transport  1819 transport:try2send,#msg_q=  0  
+[2024/06/26 09:36:53 553] network    353  send ok  268  ns2  
+[2024/06/26 09:36:53 559] network    362  readable  ns2  
+[2024/06/26 09:36:53 590] network    366  HTTP/1.1 200 OK
+Server: iflytek/hdns
+Date: Wed, 26 Jun 2024 01:36:50 GMT
+Content-Type: application/json
+Content-Length: 314
+Connection: close
+
+{"dns":[{"host":"open.xf-yun.com","sip":[{"svc":"ath","ips":[{"ip":"121.37.220.137","port":80,"idc":"gz"},{"ip":"121.37.244.117","port":80,"idc":"gz"}],"ttl":6000,"compel":0}]}],"default":[{"host":"open.xf-yun.com","sip":[{"svc":"ath","ips":[{"ip":"121.37.244.117","port":80,"idc":"gz"}],"ttl":6000,"compel":0}]}]}  
+[2024/06/26 09:36:53 712] ns         253  name server http resp  0  
+[2024/06/26 09:36:53 721] ns         266  ns response OK for this time!  
+[2024/06/26 09:36:53 783] ns         277  from_server=  iflytek/hdns  
+[2024/06/26 09:36:53 979] ns         360  compel :  0  
+[2024/06/26 09:36:53 988] transport  1063 ns_ip =   121.37.220.137  
+[2024/06/26 09:36:54 079] transport  1064 ip_type =  assigned_athopen.xf-yun.com_host  
+[2024/06/26 09:36:54 092] ns         670  no data in ns_q  
+[2024/06/26 09:36:54 096] ns         671  conti_ns,ns_inprog =   1  
+[2024/06/26 09:36:54 122] transport  482  [soc] [1] send ok  516  
+[2024/06/26 09:36:54 129] transport  1799 transport_obj.try2send | in  
+[2024/06/26 09:36:54 137] transport  1800 self.soc  udata(6c0323a8) 
+[2024/06/26 09:36:54 141] transport  1801 self.connected  true  
+[2024/06/26 09:36:54 143] transport  1802 self.latesterr  0  
+[2024/06/26 09:36:54 150] transport  1819 transport:try2send,#msg_q=  0  
+[2024/06/26 09:36:54 157] transport  494  [soc] [1] readable  
+[2024/06/26 09:36:54 235] transport  1767 HTTP/1.1 200 OK
+Content-Length: 1
+X-Req-Date: 2024/06/26 09:36:51 49
+X-Par: ver=MSSP+0%2E9&ret=0&cver=5%2E0%2E44%2E1288&uid=d18935263485&key=0bDwIrSnEWihjcUuEYXU1bB4F6V46DsbmsIho0JfCfE^i^^GHVr44O7MrtSnKifcLi0KYQoeF5rFtlJV69LgrEa2UlXr0uCsRr
+CT: text/plain
+CL: 1
+Content-Length: 1
+X-Res-Date: 2024/06/26 09:36:51 70
+
+0  
+[2024/06/26 09:36:54 241] transport  1494 a_complete_httpmessage  200  
+[2024/06/26 09:36:54 247] transport  1604 is_update  false  
+[2024/06/26 09:36:54 256] lgi        105  [trans] [id = lgi_] readable  
+[2024/06/26 09:36:54 314] network    90   ipfromenv ,  ipcache  open.xf-yun.com  def  121.37.220.137  
+[2024/06/26 09:36:54 322] transport  981  cached ip is confirmed  
+[2024/06/26 09:36:54 325] transport  1332 [soc] disconnect   
+[2024/06/26 09:36:54 339] transport  991  transport clean  
+[2024/06/26 09:36:54 342] lgi        136  lgi resp!  
+[2024/06/26 09:36:54 352] lgi        143  lgi ok!  
+[2024/06/26 09:36:54 355] lgi        151  unkown  d18935263485  
+[2024/06/26 09:36:54 360] lgi        72   loginid =   1  d18935263485  
+[2024/06/26 09:36:54 363] lgi        75   notify_lgi_result, ret = 0  
+[2024/06/26 09:37:09 399] lgi        100  lgi_delaydie_timeout  

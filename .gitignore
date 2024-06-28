@@ -1,6 +1,19 @@
-resources
-.vscode
-.vscode/settings.json
+# Ignore directories
+.vscode/
 code/client/obj/
+code/client/bin/
 code/server/obj/
-code/build
+code/server/bin/res*/
+code/server/bin/msc/
+
+# Ignore specific files
+.vscode/settings.json
+code/server/bin/server_main
+code/server/bin/msc/lgi.log
+code/server/bin/msc/isr.log
+code/server/bin/res.wav
+code/server/bin/res.txt
+code/server/bin/msc/msc.log
+code/server/bin/msc/waiter.log
+
+resources/

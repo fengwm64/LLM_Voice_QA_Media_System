@@ -7,6 +7,7 @@ cd ../server
 export LD_LIBRARY_PATH=$(pwd)/libs/x64/
 make clean;make LINUX64=1
 echo "bulid server done!"
+cd ./bin/msc && rm *log 
 echo
 
-cd ./bin && ./server_main
+cd ../ && ./server_main
